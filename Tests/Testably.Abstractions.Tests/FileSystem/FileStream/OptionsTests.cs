@@ -17,11 +17,11 @@ public abstract partial class OptionsTests<TFileSystem>
 
 		using FileSystemStream stream = FileSystem.FileStream.New(path, FileMode.Open,
 			FileAccess.ReadWrite, FileShare.None, 10, FileOptions.DeleteOnClose);
-		FileSystem.File.Exists(path).Should().BeTrue();
+		FileSystem.Should().HaveFile(path);
 
 		stream.Close();
 
-		FileSystem.File.Exists(path).Should().BeFalse();
+		FileSystem.Should().NotHaveFile(path);
 	}
 
 	[SkippableTheory]
@@ -36,7 +36,7 @@ public abstract partial class OptionsTests<TFileSystem>
 
 		stream.Dispose();
 
-		FileSystem.File.Exists(path).Should().BeFalse();
+		FileSystem.Should().NotHaveFile(path);
 	}
 
 	[SkippableTheory]
@@ -59,8 +59,9 @@ public abstract partial class OptionsTests<TFileSystem>
 		stream.SetLength(bytes.Length);
 		stream.Dispose();
 
-		FileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
-		FileSystem.File.ReadAllText(path).Should().Be(contents2);
+		FileSystem.Should().HaveFile(path)
+			.Which.HasContent(contents2)
+			.And.HasAttribute(FileAttributes.Encrypted);
 	}
 
 	[SkippableTheory]
@@ -102,7 +103,8 @@ public abstract partial class OptionsTests<TFileSystem>
 		stream.SetLength(bytes.Length);
 		stream.Dispose();
 
-		FileSystem.File.GetAttributes(path).Should().HaveFlag(FileAttributes.Encrypted);
-		FileSystem.File.ReadAllText(path).Should().Be(contents2);
+		FileSystem.Should().HaveFile(path)
+			.Which.HasContent(contents2)
+			.And.HasAttribute(FileAttributes.Encrypted);
 	}
 }
