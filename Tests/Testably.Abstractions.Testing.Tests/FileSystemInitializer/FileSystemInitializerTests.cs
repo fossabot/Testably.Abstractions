@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using Testably.Abstractions.Testing.FileSystemInitializer;
 
 namespace Testably.Abstractions.Testing.Tests.FileSystemInitializer;
@@ -23,7 +24,40 @@ public class FileSystemInitializerTests
 
 	[Theory]
 	[AutoData]
-	public void With_FileDescriptions_ShouldCreateFileContent(string name, string content)
+	public void With_DirectoryDescriptions_WithSubdirectories_ShouldCreateDirectories(
+		string parent, DirectoryDescription[] directories)
+	{
+		DirectoryDescription directoryDescription = new(parent,
+			directories.Cast<FileSystemInfoDescription>().ToArray());
+		MockFileSystem fileSystem = new();
+		IFileSystemInitializer<MockFileSystem> sut = fileSystem.Initialize();
+
+		sut.With(directoryDescription);
+
+		foreach (DirectoryDescription directory in directories)
+		{
+			fileSystem.Should().HaveDirectory(Path.Combine(parent, directory.Name));
+		}
+	}
+
+	[Theory]
+	[AutoData]
+	public void With_FileDescription_WithBytes_ShouldCreateFileContent(string name, byte[] bytes)
+	{
+		FileDescription description = new(name, bytes);
+		MockFileSystem fileSystem = new();
+		IFileSystemInitializer<MockFileSystem> sut = fileSystem.Initialize();
+
+		sut.With(description);
+
+		fileSystem.Should().HaveFile(name)
+			.Which.HasContent(bytes);
+	}
+
+	[Theory]
+	[AutoData]
+	public void With_FileDescription_WithContent_ShouldCreateFileContent(string name,
+		string content)
 	{
 		FileDescription description = new(name, content);
 		MockFileSystem fileSystem = new();
@@ -92,9 +126,12 @@ public class FileSystemInitializerTests
 		fileSystem.Directory.CreateDirectory(path);
 
 		Exception? exception = Record.Exception(() =>
-			sut.WithFile(path));
+		{
+			sut.WithFile(path);
+		});
 
-		exception.Should().BeOfType<TestingException>();
+		exception.Should().BeOfType<TestingException>()
+			.Which.Message.Should().Contain(path);
 	}
 
 	[Theory]
@@ -108,7 +145,8 @@ public class FileSystemInitializerTests
 		Exception? exception = Record.Exception(() =>
 			sut.WithFile(path));
 
-		exception.Should().BeOfType<TestingException>();
+		exception.Should().BeOfType<TestingException>()
+			.Which.Message.Should().Contain(path);
 	}
 
 	[Theory]
@@ -168,7 +206,8 @@ public class FileSystemInitializerTests
 		Exception? exception = Record.Exception(() =>
 			sut.WithSubdirectory(path));
 
-		exception.Should().BeOfType<TestingException>();
+		exception.Should().BeOfType<TestingException>()
+			.Which.Message.Should().Contain(path);
 	}
 
 	[Theory]
@@ -182,7 +221,8 @@ public class FileSystemInitializerTests
 		Exception? exception = Record.Exception(() =>
 			sut.WithSubdirectory(path));
 
-		exception.Should().BeOfType<TestingException>();
+		exception.Should().BeOfType<TestingException>()
+			.Which.Message.Should().Contain(path);
 	}
 
 	[Theory]

@@ -1,5 +1,7 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 using Testably.Abstractions.TimeSystem;
+using ITimer = Testably.Abstractions.TimeSystem.ITimer;
 
 namespace Testably.Abstractions.Tests.TimeSystem;
 
@@ -131,7 +133,7 @@ public abstract partial class TimerFactoryTests<TTimeSystem>
 	}
 
 	[SkippableFact]
-	public void New_WithDueTime_ShouldStartTimerOnce()
+	public async Task New_WithDueTime_ShouldStartTimerOnce()
 	{
 		int count = 0;
 		ManualResetEventSlim ms = new();
@@ -142,7 +144,7 @@ public abstract partial class TimerFactoryTests<TTimeSystem>
 		}, null, 5, 0);
 
 		ms.Wait(30000).Should().BeTrue();
-		Thread.Sleep(100);
+		await Task.Delay(100);
 		count.Should().Be(1);
 	}
 
