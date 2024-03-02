@@ -13,6 +13,7 @@ internal class FileSystemClassGenerator : ClassGeneratorBase
 	/// <inheritdoc cref="ClassGeneratorBase.GenerateSource(StringBuilder, ClassModel)" />
 	protected override void GenerateSource(StringBuilder sourceBuilder, ClassModel @class)
 		=> sourceBuilder.Append(@$"
+using System.Runtime.InteropServices;
 using Testably.Abstractions.Testing.FileSystemInitializer;
 using Testably.Abstractions.TestHelpers;
 using Xunit.Abstractions;
@@ -54,6 +55,84 @@ namespace {@class.Namespace}.{@class.Name}
 		/// <inheritdoc cref=""IDisposable.Dispose()"" />
 		public void Dispose()
 			=> _directoryCleaner.Dispose();
+
+		// ReSharper disable once UnusedMember.Global
+		public sealed class Linux : {@class.Name}<MockFileSystem>, IDisposable
+		{{
+			/// <inheritdoc cref=""{@class.Name}{{TFileSystem}}.BasePath"" />
+			public override string BasePath => _directoryCleaner.BasePath;
+
+			private readonly IDirectoryCleaner _directoryCleaner;
+
+			public Linux() : this(new MockFileSystem(OSPlatform.Linux))
+			{{
+			}}
+
+			private Linux(MockFileSystem mockFileSystem) : base(
+				new Test(OSPlatform.Linux),
+				mockFileSystem,
+				mockFileSystem.TimeSystem)
+			{{
+				_directoryCleaner = FileSystem
+				   .SetCurrentDirectoryToEmptyTemporaryDirectory();
+			}}
+
+			/// <inheritdoc cref=""IDisposable.Dispose()"" />
+			public void Dispose()
+				=> _directoryCleaner.Dispose();
+		}}
+
+		// ReSharper disable once UnusedMember.Global
+		public sealed class MacOS : {@class.Name}<MockFileSystem>, IDisposable
+		{{
+			/// <inheritdoc cref=""{@class.Name}{{TFileSystem}}.BasePath"" />
+			public override string BasePath => _directoryCleaner.BasePath;
+
+			private readonly IDirectoryCleaner _directoryCleaner;
+
+			public MacOS() : this(new MockFileSystem(OSPlatform.OSX))
+			{{
+			}}
+
+			private MacOS(MockFileSystem mockFileSystem) : base(
+				new Test(OSPlatform.OSX),
+				mockFileSystem,
+				mockFileSystem.TimeSystem)
+			{{
+				_directoryCleaner = FileSystem
+				   .SetCurrentDirectoryToEmptyTemporaryDirectory();
+			}}
+
+			/// <inheritdoc cref=""IDisposable.Dispose()"" />
+			public void Dispose()
+				=> _directoryCleaner.Dispose();
+		}}
+
+		// ReSharper disable once UnusedMember.Global
+		public sealed class Windows : {@class.Name}<MockFileSystem>, IDisposable
+		{{
+			/// <inheritdoc cref=""{@class.Name}{{TFileSystem}}.BasePath"" />
+			public override string BasePath => _directoryCleaner.BasePath;
+
+			private readonly IDirectoryCleaner _directoryCleaner;
+
+			public Windows() : this(new MockFileSystem(OSPlatform.Windows))
+			{{
+			}}
+
+			private Windows(MockFileSystem mockFileSystem) : base(
+				new Test(OSPlatform.Windows),
+				mockFileSystem,
+				mockFileSystem.TimeSystem)
+			{{
+				_directoryCleaner = FileSystem
+				   .SetCurrentDirectoryToEmptyTemporaryDirectory();
+			}}
+
+			/// <inheritdoc cref=""IDisposable.Dispose()"" />
+			public void Dispose()
+				=> _directoryCleaner.Dispose();
+		}}
 	}}
 }}
 

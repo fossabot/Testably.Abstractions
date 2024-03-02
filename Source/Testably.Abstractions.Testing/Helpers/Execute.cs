@@ -20,6 +20,14 @@ internal class Execute
 		IsNetFramework = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework");
 	}
 
+	public Execute(OSPlatform osPlatform)
+	{
+		IsLinux = osPlatform == OSPlatform.Linux;
+		IsMac = osPlatform == OSPlatform.OSX;
+		IsWindows = osPlatform == OSPlatform.Windows;
+		IsNetFramework = false;
+	}
+
 	/// <summary>
 	///     The default <see cref="StringComparison" /> used for comparing paths.
 	/// </summary>

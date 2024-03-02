@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using Testably.Abstractions.Testing.FileSystem;
 using Testably.Abstractions.Testing.Helpers;
 using Testably.Abstractions.Testing.Storage;
@@ -92,6 +93,29 @@ public sealed class MockFileSystem : IFileSystem
 		SafeFileHandleStrategy = new NullSafeFileHandleStrategy();
 		AccessControlStrategy = new NullAccessControlStrategy();
 		AddDriveFromCurrentDirectory();
+	}
+
+	/// <summary>
+	///     Initializes the <see cref="MockFileSystem" />.
+	/// </summary>
+	public MockFileSystem(OSPlatform osPlatform)
+	{
+		Execute = new Execute(osPlatform);
+		RandomSystem = new MockRandomSystem();
+		TimeSystem = new MockTimeSystem(TimeProvider.Now());
+		// TODO: Use OS dependent `PathMock`
+		_pathMock = new PathMock(this);
+		_storage = new InMemoryStorage(this);
+		ChangeHandler = new ChangeHandler(this);
+		_directoryMock = new DirectoryMock(this);
+		_fileMock = new FileMock(this);
+		DirectoryInfo = new DirectoryInfoFactoryMock(this);
+		DriveInfo = new DriveInfoFactoryMock(this);
+		FileInfo = new FileInfoFactoryMock(this);
+		FileStream = new FileStreamFactoryMock(this);
+		FileSystemWatcher = new FileSystemWatcherFactoryMock(this);
+		SafeFileHandleStrategy = new NullSafeFileHandleStrategy();
+		AccessControlStrategy = new NullAccessControlStrategy();
 	}
 
 	#region IFileSystem Members

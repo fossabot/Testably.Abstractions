@@ -28,6 +28,14 @@ public class Test
 		IsNetFramework = RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework");
 	}
 
+	public Test(OSPlatform osPlatform)
+	{
+		RunsOnLinux = osPlatform == OSPlatform.Linux;
+		RunsOnMac = osPlatform == OSPlatform.OSX;
+		RunsOnWindows = osPlatform == OSPlatform.Windows;
+		IsNetFramework = false;
+	}
+
 	public static void SkipBrittleTestsOnRealFileSystem(
 		IFileSystem fileSystem, bool condition = true)
 	{
